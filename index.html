@@ -128,7 +128,7 @@
           </div>
           <div class="nav-radio-item" data-page="sunting-profil">
             <div class="nav-radio-circle"></div>
-            <span>Sunting Profil</span>
+            <span>Sunting Profil & Cadangan</span>
           </div>
           <div class="nav-radio-item" data-page="pralaya">
             <div class="nav-radio-circle"></div>
@@ -244,7 +244,7 @@
         </div>
       </section>
 
-      <!-- 6. HALAMAN: SUNTING PROFIL & TEMA ASRAMA -->
+      <!-- 6. HALAMAN: SUNTING PROFIL & TEMA ASRAMA + CADANGAN -->
       <section id="page-sunting-profil" class="page-section" style="display: none;">
         <h1>👤 Pengaturan Profil & Asrama Penzair</h1>
         <p class="page-desc">Sesuaikan identitas, pilihan emoji, bio, serta pilih Tema Asrama Hogwarts untuk mempercantik aplikasi.</p>
@@ -290,6 +290,22 @@
             <button type="submit" class="btn btn-accent">Simpan Perubahan Profil & Tema</button>
           </div>
         </form>
+
+        <hr style="margin-top: 35px;">
+        <h2>💾 Cadangan & Pemulihan Arsip</h2>
+        <p class="page-desc">Unduh berkas cadangan mandiri untuk mengamankan naskahmu agar tidak hilang, atau pulihkan jika baru berganti perangkat.</p>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-accent" onclick="exportDataToJson()">
+            📥 Ekspor / Unduh Cadangan (.json)
+          </button>
+          
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('import-file-input').click()">
+            📤 Impor / Pulihkan dari Berkas
+          </button>
+          <!-- Input file tersembunyi -->
+          <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importDataFromJson(event)">
+        </div>
       </section>
 
       <!-- 7. HALAMAN: PRALAYA (TEMPAT SAMPAH) -->
