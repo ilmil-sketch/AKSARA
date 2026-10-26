@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aksara - Pustaka Sastra Nusantara 📜</title>
+  <!-- Google Fonts: Inter & JetBrains Mono untuk bait puisi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS Variables dinamis mengikuti tema Hogwarts */
+    :root {
+      --sidebar-bg: #1c1214;
+      --card-bg: #2b181b;
+      --border-color: #4a252b;
+      --text-main: #f5e6d3;
+      --text-muted: #c4a482;
+      --accent: #e5c07b;
+      --content-bg: rgba(229, 192, 123, 0.04);
+      --app-bg: #0d0d12;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--app-bg);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Utilitas Tipografi */
+    h1, h2, h3, h4 {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    h1 { font-size: 1.85rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.45rem; margin-bottom: 0.75rem; }
+    h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+    hr {
+      border: 0;
+      border-top: 1px solid var(--border-color);
+      margin: 20px 0;
+    }
+
+    /* Layout Wrapper */
+    #app-container {
+      display: flex;
+      width: 100vw;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Sidebar Streamlit Replica */
+    #sidebar {
+      width: 320px;
+      min-width: 320px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 18px 80px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      overflow-y: auto;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s ease;
+      z-index: 1000;
+    }
+
+    #sidebar.collapsed {
+      margin-left: -320px;
+      transform: translateX(-100%);
+    }
+
+    .sidebar-card {
+      background-color: var(--card-bg);
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .aksara-logo {
+      text-align: center;
+      padding-top: 15px;
+      padding-bottom: 15px;
+    }
+
+    .aksara-logo h1 {
+      margin: 0;
+      color: var(--text-main);
+      font-size: 26px;
+      letter-spacing: -0.5px;
+    }
+
+    .aksara-logo p {
+      font-size: 17px;
+      color: var(--accent);
+      margin: 6px 0 0 0;
+      letter-spacing: 3px;
+    }
+
+    .profile-card {
+      text-align: center;
+    }
+
+    .profile-card h4 {
+      margin: 0;
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    .profile-card p {
+      font-size: 12px;
+      margin: 4px 0 10px 0;
+      color: var(--text-muted);
+    }
+
+    .account-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .btn-account-action {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-account-action:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .sidebar-title {
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      color: var(--accent) !important;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px !important;
+      text-transform: uppercase;
+    }
+
+    /* Nav Radio Streamlit Style */
+    .nav-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-radio-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-main);
+      transition: background 0.15s ease;
+      user-select: none;
+    }
+
+    .nav-radio-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-radio-item.active {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-radio-circle {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-radio-item.active .nav-radio-circle {
+      border-color: var(--accent);
+    }
+
+    .nav-radio-item.active .nav-radio-circle::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent);
+    }
+
+    .sidebar-caption {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .sidebar-footer {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    /* Main Area */
+    #main-content {
+      flex: 1;
+      padding: 35px 45px 80px 45px;
+      max-width: 1050px;
+      margin: 0 auto;
+      overflow-y: auto;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 768px) {
+      #main-content {
+        padding: 20px 16px 80px 16px;
+      }
+      #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.6);
+      }
+      #sidebar:not(.collapsed) {
+        margin-left: 0;
+      }
+    }
+
+    /* Subtitle & Info boxes */
+    .page-desc {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .st-info-box {
+      background-color: var(--card-bg);
+      border-left: 4px solid var(--accent);
+      border: 1px solid var(--border-color);
+      border-left-width: 4px;
+      border-left-color: var(--accent);
+      padding: 14px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--text-main);
+      margin-bottom: 20px;
+    }
+
+    /* Expander / Accordion */
+    .expander-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .expander-header {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text-main);
+      background-color: rgba(255,255,255,0.01);
+    }
+
+    .expander-header:hover {
+      background-color: rgba(255,255,255,0.03);
+    }
+
+    .expander-header .arrow {
+      font-size: 12px;
+      color: var(--accent);
+      transition: transform 0.2s ease;
+    }
+
+    .expander-item.open .expander-header .arrow {
+      transform: rotate(180deg);
+    }
+
+    .expander-body {
+      display: none;
+      padding: 18px 20px 22px 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .expander-item.open .expander-body {
+      display: block;
+    }
+
+    /* Poetry Box Estetik */
+    .poetry-box {
+      padding: 25px 30px;
+      border-left: 4px solid var(--accent);
+      background-color: var(--content-bg);
+      border-radius: 6px;
+      white-space: pre-wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 25px;
+      color: var(--text-main);
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    /* Tabs Component */
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 18px;
+      gap: 15px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+    }
+
+    .tab-btn.active::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2.5px;
+      background-color: var(--accent);
+      border-radius: 2px;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Form & Input Elements */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13.5px;
+      margin-bottom: 7px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .input-text, .input-textarea, .input-select {
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-text:focus, .input-textarea:focus, .input-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .input-textarea {
+      resize: vertical;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .input-select {
+      cursor: pointer;
+    }
+
+    .input-select option {
+      background-color: #121217;
+      color: #eee;
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease-in-out;
+      user-select: none;
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: #1a1005;
+      border-color: var(--accent);
+    }
+
+    .btn-accent:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--card-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-danger {
+      background-color: rgba(220, 53, 69, 0.15);
+      color: #ff6b7b;
+      border-color: rgba(220, 53, 69, 0.4);
+    }
+
+    .btn-danger:hover {
+      background-color: rgba(220, 53, 69, 0.28);
+    }
+
+    .btn-success {
+      background-color: rgba(46, 204, 113, 0.15);
+      color: #2ecc71;
+      border-color: rgba(46, 204, 113, 0.4);
+    }
+
+    .btn-success:hover {
+      background-color: rgba(46, 204, 113, 0.28);
+    }
+
+    .flex-row-gap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Floating Button Kiri Bawah */
+    .floating-toggle-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 999999;
+    }
+
+    .floating-toggle-btn {
+      background-color: var(--card-bg);
+      color: var(--accent);
+      border: 1px solid var(--border-color);
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .floating-toggle-btn:hover {
+      transform: scale(1.12);
+      background-color: var(--border-color);
+    }
+
+    /* Modal Dialog Autentikasi / Akun */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      padding: 15px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      padding: 28px 24px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.85);
+      position: relative;
+    }
+
+    .auth-tab-switch {
+      display: flex;
+      margin-bottom: 20px;
+      background: rgba(0,0,0,0.3);
+      padding: 3px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .auth-tab-switch button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13.5px;
+      transition: all 0.2s;
+    }
+
+    .auth-tab-switch button.active {
+      background: var(--border-color);
+      color: var(--accent);
+    }
+
+    /* Toast Notification */
+    #toast-notification {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--accent);
+      color: var(--text-main);
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      z-index: 10000000;
+      font-size: 13.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(-80px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    #toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Metric Cards */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .metric-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 18px 22px;
+    }
+
+    .metric-card .label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-card .value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .metric-card .delta {
+      font-size: 12px;
+      color: #2ecc71;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Toggle Button Pojok Kiri Bawah -->
+  <div class="floating-toggle-container">
+    <button class="floating-toggle-btn" id="floating-toggle" title="Buka/Tutup Sidebar">✒️</button>
+  </div>
+
+  <!-- Toast Notifikasi Ringan -->
+  <div id="toast-notification"></div>
+
+  <!-- Modal Autentikasi (Daftar / Masuk Akun Baru) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-card">
+      <div style="text-align: center; margin-bottom: 18px;">
+        <span style="font-size: 38px;">📜</span>
+        <h2 style="margin: 8px 0 3px 0; font-size: 20px;">Gerbang Aksara</h2>
+        <p style="font-size: 12.5px; color: var(--text-muted);">Simpan & kelola lembaran syair pribadimu</p>
+      </div>
+
+      <div class="auth-tab-switch">
+        <button type="button" id="tab-login-btn" class="active" onclick="switchAuthMode('login')">Masuk</button>
+        <button type="button" id="tab-reg-btn" onclick="switchAuthMode('register')">Daftar Akun</button>
+      </div>
+
+      <!-- Form Masuk -->
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Nama Pengguna / Penzair</label>
+          <input type="text" class="input-text" id="login-username" required placeholder="Contoh: Noir">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <input type="password" class="input-text" id="login-password" required placeholder="Masukkan kata sandi">
+        </div>
+        <div style="margin-top: 22px;">
+          <button type="submit" class="btn btn-accent" style="width: 100%;">Masuk ke Pustaka</button>
+        </div>
+      </form>
+
+      <!-- Form Buat Akun -->
+      <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label">Nama Pengguna (Username Unik)</label>
+          <input type="text" class="input-text" id="reg-username" required placeholder="Contoh: SangPujangga">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Tampilan Penzair</label>
+          <input type="text" class="input-text" id="reg-fullname" placeholder="Contoh: Raden Noir">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pilih Asrama Awal</label>
+          <select class="input-select" id="reg-theme">
+            <option value="Gryffindor">Gryffindor (Merah Hati & Emas)</option>
+            <option value="Slytherin">Slytherin (Hijau Zamrud & Perak)</option>
+            <option value="Ravenclaw">Ravenclaw (Biru Safir & Perunggu)</option>
+            <option value="Hufflepuff">Hufflepuff (Kuning Kenari & Hitam)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <input type="password" class="input-text" id="reg-password" required placeholder="Minimal 4 karakter">
+        </div>
+        <div style="margin-top: 22px;">
+          <button type="submit" class="btn btn-accent" style="width: 100%;">Daftar & Mulai Menulis</button>
+        </div>
+      </form>
+
+      <div style="text-align: center; margin-top: 15px;" id="auth-modal-close-container">
+        <button type="button" class="btn-account-action" onclick="closeAuthModal()">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-container">
+    <!-- SIDEBAR PERSIS STREAMLIT -->
+    <aside id="sidebar">
+      <!-- 1. Aksara Logo Card -->
+      <div class="sidebar-card aksara-logo">
+        <h1>📜 Aksara</h1>
+        <p>ꦲꦏ꧀ꦱꦫ</p>
+      </div>
+
+      <!-- 2. Profil Penzair & Info Akun -->
+      <div class="sidebar-card profile-card">
+        <h4 id="sb-profile-title">✒️ Noir</h4>
+        <p id="sb-profile-bio">Penzair & Developer</p>
+        <div class="account-badge-row">
+          <span style="font-size: 11px; color: var(--text-muted);" id="sb-account-name">Akun: @noir</span>
+          <button class="btn-account-action" onclick="openAuthModal('login')">Ganti / Keluar</button>
+        </div>
+      </div>
+
+      <!-- 3. Navigasi Utama -->
+      <div class="sidebar-card">
+        <p class="sidebar-title">🧭 NAVIGASI UTAMA</p>
+        <div class="nav-radio-group" id="nav-radio-group">
+          <div class="nav-radio-item active" data-page="pustaka-kawi">
+            <div class="nav-radio-circle"></div>
+            <span>Pustaka Kawi</span>
+          </div>
+          <div class="nav-radio-item" data-page="rintis-baru">
+            <div class="nav-radio-circle"></div>
+            <span>Rintis Pustaka Baru</span>
+          </div>
+          <div class="nav-radio-item" data-page="revisi-diksi">
+            <div class="nav-radio-circle"></div>
+            <span>Revisi Diksi</span>
+          </div>
+          <div class="nav-radio-item" data-page="indeks-pustaka">
+            <div class="nav-radio-circle"></div>
+            <span>Indeks Pustaka</span>
+          </div>
+          <div class="nav-radio-item" data-page="statistik">
+            <div class="nav-radio-circle"></div>
+            <span>Statistik Produktivitas</span>
+          </div>
+          <div class="nav-radio-item" data-page="sunting-profil">
+            <div class="nav-radio-circle"></div>
+            <span>Sunting Profil</span>
+          </div>
+          <div class="nav-radio-item" data-page="pralaya">
+            <div class="nav-radio-circle"></div>
+            <span>Pralaya</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Indeks Pustaka Mini di Sidebar -->
+      <div class="sidebar-card">
+        <p class="sidebar-title">📂 INDEKS PUSTAKA</p>
+        <div id="sb-indeks-container">
+          <!-- Diisi via JavaScript -->
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        v1.0.0 • Pustaka Sastra Nusantara
+      </div>
+    </aside>
+
+    <!-- MAIN VIEW AREA -->
+    <main id="main-content">
+      <!-- 1. HALAMAN: PUSTAKA KAWI -->
+      <section id="page-pustaka-kawi" class="page-section">
+        <h1>📂 Pustaka Kawi — Pengelolaan Naskah & Riwayat</h1>
+        <p class="page-desc">Kelola riwayat fase, pindahkan pustaka ke Pralaya, dan telusuri rekam jejak commit versinya di sini.</p>
+        <hr>
+        <div id="kawi-container"></div>
+      </section>
+
+      <!-- 2. HALAMAN: RINTIS PUSTAKA BARU -->
+      <section id="page-rintis-baru" class="page-section" style="display: none;">
+        <h1>✍️ Rintis Pustaka Syair Baru</h1>
+        <p class="page-desc">Mulai lembaran naskah baru untuk karyamu. Susun bait demi bait secara terstruktur.</p>
+
+        <div class="form-group">
+          <label class="form-label">Judul Pustaka Syair</label>
+          <input type="text" id="new-poetry-title" class="input-text" autocomplete="off" placeholder="Tulis judul syair...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tag (pisahkan dengan koma, misal: Indonesia, Javanese, Sanskrit)</label>
+          <input type="text" id="new-poetry-tags" class="input-text" autocomplete="off" placeholder="Indonesia, Jawa, Refleksi">
+        </div>
+
+        <hr>
+        <h3>📝 Penyusunan Bait Syair</h3>
+
+        <div class="flex-row-gap" style="margin: 15px 0;">
+          <button type="button" class="btn btn-outline" onclick="addBaitToNew()">➕ Tambah Bait</button>
+          <button type="button" class="btn btn-outline" id="btn-rem-bait" onclick="removeBaitFromNew()">➖ Kurangi Bait</button>
+        </div>
+
+        <div id="new-baits-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+          <!-- Bait inputs dinamis -->
+        </div>
+
+        <hr>
+        <div class="form-group">
+          <label class="form-label">Pesan Commit Pertama</label>
+          <input type="text" id="new-poetry-commit" class="input-text" value="Initial commit: draf awal pustaka" autocomplete="off">
+        </div>
+
+        <button type="button" class="btn btn-accent" onclick="saveNewPoetry()">Inisialisasi & Simpan Pustaka</button>
+      </section>
+
+      <!-- 3. HALAMAN: REVISI DIKSI -->
+      <section id="page-revisi-diksi" class="page-section" style="display: none;">
+        <h1>✏️ Perbarui Diksi & Revisi Pustaka</h1>
+        <p class="page-desc">Pilih judul pustaka di bawah ini untuk menyunting bait demi bait secara terstruktur.</p>
+        <hr>
+        <div id="revisi-container"></div>
+      </section>
+
+      <!-- 4. HALAMAN: INDEKS PUSTAKA -->
+      <section id="page-indeks-pustaka" class="page-section" style="display: none;">
+        <h1>📜 Indeks Pustaka — Lembaran Syair</h1>
+        <p class="page-desc">Pilih dan klik judul pustaka di bawah ini untuk membaca keseluruhan baitnya dengan nyaman.</p>
+        <hr>
+        <div id="indeks-main-container"></div>
+      </section>
+
+      <!-- 5. HALAMAN: STATISTIK PRODUKTIVITAS -->
+      <section id="page-statistik" class="page-section" style="display: none;">
+        <h1>📊 Statistik & Kontribusi Menulis</h1>
+        <p class="page-desc">Visualisasi kontribusi harian dan rekam jejak produktivitas penzair.</p>
+        <hr>
+
+        <h2>🟩 Poetry Contributions (Aktivitas Harian)</h2>
+        <div style="background-color: #0d1117; padding: 20px; border-radius: 8px; border: 1px solid #30363d; max-width: 100%; margin-bottom: 30px;">
+          <div style="font-size: 14px; color: #8b949e; margin-bottom: 12px;">Aktivitas 35 hari terakhir</div>
+          <div id="contribution-heatmap-boxes" style="line-height: 0;"></div>
+          <div style="font-size: 11px; color: #8b949e; margin-top: 14px; display: flex; align-items: center; gap: 5px;">
+            Less &nbsp;
+            <div style='width: 10px; height: 10px; background-color: #161b22; display: inline-block; border-radius: 2px;'></div>
+            <div style='width: 10px; height: 10px; background-color: #0e4429; display: inline-block; border-radius: 2px;'></div>
+            <div style='width: 10px; height: 10px; background-color: #006d32; display: inline-block; border-radius: 2px;'></div>
+            <div style='width: 10px; height: 10px; background-color: #26a641; display: inline-block; border-radius: 2px;'></div>
+            &nbsp; More
+          </div>
+        </div>
+
+        <hr>
+        <h2>📈 Ringkasan Produktivitas</h2>
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="label">Total Pustaka Syair</div>
+            <div class="value" id="metric-total-poems">0 Judul</div>
+            <div class="delta">Karya Tersimpan</div>
+          </div>
+          <div class="metric-card">
+            <div class="label">Total Proses Revisi (Commit)</div>
+            <div class="value" id="metric-total-commits">0 Kali</div>
+            <div class="delta">Perjalanan Diksi</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. HALAMAN: SUNTING PROFIL & TEMA ASRAMA -->
+      <section id="page-sunting-profil" class="page-section" style="display: none;">
+        <h1>👤 Pengaturan Profil & Asrama Penzair</h1>
+        <p class="page-desc">Sesuaikan identitas, pilihan emoji, bio, serta pilih Tema Asrama Hogwarts untuk mempercantik aplikasi.</p>
+        <hr>
+
+        <form id="profile-edit-form" onsubmit="handleSaveProfile(event)">
+          <div class="form-group">
+            <label class="form-label">Pilih Emoji Profil</label>
+            <select class="input-select" id="edit-profile-emoji">
+              <option value="✒️">✒️ Pena Sastra</option>
+              <option value="📜">📜 Naskah Kuno</option>
+              <option value="💻">💻 Aksara Digital</option>
+              <option value="✨">✨ Kilau Sihir</option>
+              <option value="☕">☕ Kopi Senja</option>
+              <option value="🌙">🌙 Rembulan</option>
+              <option value="🦉">🦉 Burung Hantu Pos</option>
+              <option value="🎨">🎨 Palet Warna</option>
+              <option value="🚀">🚀 Pujangga Maju</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama / Panggilan Penzair</label>
+            <input type="text" class="input-text" id="edit-profile-name" required autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Bio Singkat</label>
+            <input type="text" class="input-text" id="edit-profile-bio" autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">🏰 Pilih Tema Asrama (Warna)</label>
+            <select class="input-select" id="edit-profile-theme">
+              <option value="Gryffindor">Gryffindor</option>
+              <option value="Slytherin">Slytherin</option>
+              <option value="Ravenclaw">Ravenclaw</option>
+              <option value="Hufflepuff">Hufflepuff</option>
+            </select>
+          </div>
+
+          <div style="margin-top: 25px;">
+            <button type="submit" class="btn btn-accent">Simpan Perubahan Profil & Tema</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 7. HALAMAN: PRALAYA (TEMPAT SAMPAH) -->
+      <section id="page-pralaya" class="page-section" style="display: none;">
+        <h1>🌪️ Pralaya — Peleburan & Arsip Terhapus</h1>
+        <p class="page-desc">Pustaka yang telah dilebur tersimpan di sini. Kamu dapat memulihkannya kembali ke panteon atau memusnahkannya secara permanen.</p>
+        <hr>
+        <div id="pralaya-container"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    /* =========================================================================
+       DATA TEMA HARRY POTTER
+       ========================================================================= */
+    const themes = {
+      "Gryffindor": {
+        sidebar_bg: "#1c1214",
+        card_bg: "#2b181b",
+        border_color: "#4a252b",
+        text_main: "#f5e6d3",
+        text_muted: "#c4a482",
+        accent: "#e5c07b",
+        content_bg: "rgba(229, 192, 123, 0.04)"
+      },
+      "Slytherin": {
+        sidebar_bg: "#111c16",
+        card_bg: "#16281e",
+        border_color: "#234230",
+        text_main: "#d8f3e5",
+        text_muted: "#9ac2ac",
+        accent: "#2ecc71",
+        content_bg: "rgba(46, 204, 113, 0.04)"
+      },
+      "Ravenclaw": {
+        sidebar_bg: "#111622",
+        card_bg: "#1a2236",
+        border_color: "#2c3b5e",
+        text_main: "#e0eafc",
+        text_muted: "#9bb1d0",
+        accent: "#61afef",
+        content_bg: "rgba(97, 175, 239, 0.04)"
+      },
+      "Hufflepuff": {
+        sidebar_bg: "#1d1a12",
+        card_bg: "#2e291a",
+        border_color: "#473e27",
+        text_main: "#fcf5e5",
+        text_muted: "#d4c59d",
+        accent: "#f1c40f",
+        content_bg: "rgba(241, 196, 15, 0.04)"
+      }
+    };
+
+    const sanskritTerms = [
+      "Prathama (Pertama)",
+      "Dwitiya (Kedua)",
+      "Tritiya (Ketiga)",
+      "Caturthi (Keempat)",
+      "Panchami (Kelima)",
+      "Shashthi (Keenam)",
+      "Saptami (Ketujuh)"
+    ];
+
+    function getSanskritVersion(index) {
+      if (index < sanskritTerms.length) {
+        return sanskritTerms[index];
+      }
+      return `Versi ke-${index + 1}`;
+    }
+
+    /* =========================================================================
+       MANAJEMEN AKUN & LOCALSTORAGE
+       ========================================================================= */
+    const STORAGE_KEY_USERS = "aksara_users_db";
+    const STORAGE_KEY_CURRENT = "aksara_current_user";
+
+    // Data in-memory sesi aktif
+    let currentUser = null;
+    let appData = {
+      profile: {
+        emoji: "✒️",
+        name: "Noir",
+        bio: "Penzair & Developer",
+        theme: "Gryffindor"
+      },
+      repos: {},
+      trash: {}
+    };
+
+    // State form rintis bait
+    let newBaitsCount = 2;
+
+    function initUserDatabase() {
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS) || "{}");
+      
+      // Buat akun default 'noir' jika baru pertama kali dipasang
+      if (!users["noir"]) {
+        users["noir"] = {
+          username: "noir",
+          password: "123",
+          profile: {
+            emoji: "✒️",
+            name: "Noir",
+            bio: "Penzair & Developer",
+            theme: "Gryffindor"
+          },
+          repos: {
+            "Kidung Sinom": {
+              tags: ["Javanese", "Klasik", "Sastra"],
+              commits: [
+                {
+                  timestamp: "2026-10-18 10:20:00",
+                  title_version: "Prathama (Draf Awal)",
+                  content: "Nulada laku utama\nTumraping wong tanah Jawi\nWong agung ing Ngeksiganda\nPanembahan Senapati",
+                  message: "Initial commit: draf awal pustaka"
+                },
+                {
+                  timestamp: "2026-10-22 14:15:30",
+                  title_version: "Dwitiya (Penyelarasan Rima)",
+                  content: "Nulada laku utama\nTumraping wong tanah Jawi\nWong agung ing Ngeksiganda\nPanembahan Senapati\n\nKepati amarsudi\nSudaning hawa lan nepsu\nPinesu tapa brata\nTanapi ing siyang ratri",
+                  message: "Penambahan bait kedua dan pemurnian rima tembang"
+                }
+              ]
+            }
+          },
+          trash: {}
+        };
+        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      }
+
+      let activeUser = localStorage.getItem(STORAGE_KEY_CURRENT);
+      if (!activeUser || !users[activeUser]) {
+        activeUser = "noir";
+        localStorage.setItem(STORAGE_KEY_CURRENT, activeUser);
+      }
+
+      currentUser = activeUser;
+      appData = users[currentUser];
+    }
+
+    function saveAppData() {
+      let users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS) || "{}");
+      users[currentUser] = appData;
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      renderSidebarIndices();
+    }
+
+    function applyTheme(themeName) {
+      const t = themes[themeName] || themes["Gryffindor"];
+      const root = document.documentElement;
+      root.style.setProperty('--sidebar-bg', t.sidebar_bg);
+      root.style.setProperty('--card-bg', t.card_bg);
+      root.style.setProperty('--border-color', t.border_color);
+      root.style.setProperty('--text-main', t.text_main);
+      root.style.setProperty('--text-muted', t.text_muted);
+      root.style.setProperty('--accent', t.accent);
+      root.style.setProperty('--content-bg', t.content_bg);
+
+      // Sinkronkan icon tombol floating
+      document.getElementById('floating-toggle').textContent = appData.profile.emoji || "✒️";
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notification');
+      toast.innerHTML = `<span>📜</span><span>${msg}</span>`;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    /* =========================================================================
+       MODAL & MULTI-AKUN LOGIKA
+       ========================================================================= */
+    function switchAuthMode(mode) {
+      const loginTab = document.getElementById('tab-login-btn');
+      const regTab = document.getElementById('tab-reg-btn');
+      const formLogin = document.getElementById('form-login');
+      const formReg = document.getElementById('form-register');
+
+      if (mode === 'login') {
+        loginTab.classList.add('active');
+        regTab.classList.remove('active');
+        formLogin.style.display = 'block';
+        formReg.style.display = 'none';
+      } else {
+        regTab.classList.add('active');
+        loginTab.classList.remove('active');
+        formLogin.style.display = 'none';
+        formReg.style.display = 'block';
+      }
+    }
+
+    function openAuthModal(mode = 'login') {
+      switchAuthMode(mode);
+      document.getElementById('auth-modal').classList.add('active');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.remove('active');
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('login-username').value.trim().toLowerCase();
+      const p = document.getElementById('login-password').value;
+
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS) || "{}");
+      if (!users[u] || users[u].password !== p) {
+        showToast("⚠️ Nama pengguna atau kata sandi tidak cocok!");
+        return;
+      }
+
+      currentUser = u;
+      localStorage.setItem(STORAGE_KEY_CURRENT, currentUser);
+      appData = users[currentUser];
+
+      closeAuthModal();
+      document.getElementById('form-login').reset();
+      showToast(`Selamat datang kembali, ${appData.profile.name}!`);
+      bootApp();
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const u = document.getElementById('reg-username').value.trim().toLowerCase();
+      const fn = document.getElementById('reg-fullname').value.trim() || u;
+      const th = document.getElementById('reg-theme').value;
+      const p = document.getElementById('reg-password').value;
+
+      if (u.length < 3) {
+        showToast("⚠️ Username minimal 3 karakter!");
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS) || "{}");
+      if (users[u]) {
+        showToast("⚠️ Akun dengan username ini sudah terdaftar. Silakan Masuk!");
+        return;
+      }
+
+      users[u] = {
+        username: u,
+        password: p,
+        profile: {
+          emoji: "✒️",
+          name: fn,
+          bio: "Penzair Sastra Nusantara",
+          theme: th
+        },
+        repos: {},
+        trash: {}
+      };
+
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      currentUser = u;
+      localStorage.setItem(STORAGE_KEY_CURRENT, currentUser);
+      appData = users[currentUser];
+
+      closeAuthModal();
+      document.getElementById('form-register').reset();
+      showToast(`Akun '${u}' berhasil dirintis! Selamat berkarya.`);
+      bootApp();
+    }
+
+    /* =========================================================================
+       SIDEBAR & NAVIGASI
+       ========================================================================= */
+    function updateSidebarProfile() {
+      const p = appData.profile;
+      document.getElementById('sb-profile-title').textContent = `${p.emoji} ${p.name}`;
+      document.getElementById('sb-profile-bio').textContent = p.bio;
+      document.getElementById('sb-account-name').textContent = `Akun: @${currentUser}`;
+      document.getElementById('floating-toggle').textContent = p.emoji;
+    }
+
+    function renderSidebarIndices() {
+      const container = document.getElementById('sb-indeks-container');
+      container.innerHTML = "";
+      const repo = appData.repos || {};
+      const keys = Object.keys(repo);
+
+      if (keys.length === 0) {
+        container.innerHTML = `<p class="sidebar-caption">Belum ada pustaka tersimpan.</p>`;
+        return;
+      }
+
+      keys.forEach(titleKey => {
+        const pData = repo[titleKey];
+        const createdAt = (pData.commits[0].timestamp || "").split(" ")[0];
+        const totalVers = pData.commits.length;
+        const p = document.createElement('p');
+        p.className = 'sidebar-caption';
+        p.textContent = `📜 ${titleKey} (${createdAt} • ${totalVers}V)`;
+        container.appendChild(p);
+      });
+    }
+
+    function switchPage(pageKey) {
+      document.querySelectorAll('.page-section').forEach(sec => sec.style.display = 'none');
+      document.querySelectorAll('.nav-radio-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === pageKey);
+      });
+
+      const targetPage = document.getElementById(`page-${pageKey}`);
+      if (targetPage) {
+        targetPage.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Render konten dinamis halaman
+      if (pageKey === 'pustaka-kawi') renderPustakaKawi();
+      else if (pageKey === 'rintis-baru') renderRintisBaruInputs();
+      else if (pageKey === 'revisi-diksi') renderRevisiDiksi();
+      else if (pageKey === 'indeks-pustaka') renderIndeksPustaka();
+      else if (pageKey === 'statistik') renderStatistik();
+      else if (pageKey === 'sunting-profil') loadProfileForm();
+      else if (pageKey === 'pralaya') renderPralaya();
+    }
+
+    /* =========================================================================
+       1. HALAMAN: PUSTAKA KAWI
+       ========================================================================= */
+    function renderPustakaKawi() {
+      const container = document.getElementById('kawi-container');
+      container.innerHTML = "";
+      const repo = appData.repos || {};
+      const keys = Object.keys(repo);
+
+      if (keys.length === 0) {
+        container.innerHTML = `
+          <div class="st-info-box">
+            Belum ada pustaka syair di dalam penyimpanan. Mari rintis karya pertamamu lewat menu sebelah!
+          </div>
+        `;
+        return;
+      }
+
+      keys.forEach(titleKey => {
+        const poetryData = repo[titleKey];
+        const commits = poetryData.commits;
+        const createdDate = commits[0].timestamp;
+        const updatedDate = commits[commits.length - 1].timestamp;
+        const latestCommit = commits[commits.length - 1];
+        const tagsStr = (poetryData.tags || ["Umum"]).join(", ");
+        const sanskritVer = getSanskritVersion(commits.length - 1);
+
+        const expander = document.createElement('div');
+        expander.className = 'expander-item';
+
+        expander.innerHTML = `
+          <div class="expander-header" onclick="toggleExpander(this)">
+            <span>📜 ${titleKey} — (Stadia: ${sanskritVer} | Catatan: ${escapeHtml(latestCommit.title_version)})</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="expander-body">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <div><strong>Tag Bahasa/Kategori:</strong> ${tagsStr}</div>
+              <button class="btn btn-danger" onclick="movePoetryToTrash('${escapeJs(titleKey)}')">🗑️ Buang ke Pralaya</button>
+            </div>
+
+            <div style="background-color: var(--card-bg); padding: 8px 12px; border-radius: 6px; border-left: 3px solid var(--accent); font-size: 12px; color: var(--text-main); margin: 12px 0;">
+              📅 <b>Dirintis:</b> ${createdDate} &nbsp;&nbsp;|&nbsp;&nbsp; 🔄 <b>Terakhir Disunting:</b> ${updatedDate} &nbsp;&nbsp;|&nbsp;&nbsp; 🏛️ <b>Fase:</b> ${sanskritVer}
+            </div>
+
+            <div class="tabs-header">
+              <button class="tab-btn active" onclick="switchKawiTab(this, 'tab-preview-${escapeJs(titleKey)}')">📖 Pratinjau (Fase Terkini)</button>
+              <button class="tab-btn" onclick="switchKawiTab(this, 'tab-history-${escapeJs(titleKey)}')">🕒 Riwayat Perubahan (Commit)</button>
+            </div>
+
+            <div id="tab-preview-${escapeJs(titleKey)}" class="tab-pane active">
+              <h3 style="margin-top: 10px;">${escapeHtml(latestCommit.title_version)}</h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Pesan Commit Terakhir: "${escapeHtml(latestCommit.message)}"</p>
+              <hr>
+              <div class="poetry-box">${escapeHtml(latestCommit.content)}</div>
+            </div>
+
+            <div id="tab-history-${escapeJs(titleKey)}" class="tab-pane">
+              <h3 style="margin: 12px 0;">Rekam Jejak Proses Kreatif</h3>
+              <div class="history-list">
+                ${renderCommitsHistoryHtml(commits)}
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(expander);
+      });
+    }
+
+    function renderCommitsHistoryHtml(commits) {
+      let html = "";
+      for (let i = commits.length - 1; i >= 0; i--) {
+        const commit = commits[i];
+        const revSanskrit = getSanskritVersion(i);
+        html += `
+          <div class="expander-item" style="margin-bottom: 8px;">
+            <div class="expander-header" style="font-size: 13.5px; padding: 10px 14px;" onclick="toggleExpander(this)">
+              <span>Commit #${i} [${revSanskrit}]: ${escapeHtml(commit.message)} (${commit.timestamp})</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div class="expander-body" style="padding: 12px 14px;">
+              <p style="font-size: 12.5px; margin-bottom: 8px;"><strong>Sub-judul/Fase:</strong> ${escapeHtml(commit.title_version)}</p>
+              <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; white-space: pre-wrap; color: var(--text-main); border: 1px solid var(--border-color);">${escapeHtml(commit.content)}</div>
+            </div>
+          </div>
+        `;
+      }
+      return html;
+    }
+
+    function switchKawiTab(btn, tabId) {
+      const parent = btn.closest('.expander-body');
+      parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      parent.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function movePoetryToTrash(titleKey) {
+      if (!appData.repos[titleKey]) return;
+      appData.trash[titleKey] = appData.repos[titleKey];
+      delete appData.repos[titleKey];
+      saveAppData();
+      showToast(`Pustaka '${titleKey}' dilebur ke Pralaya (Tempat Sampah), ${appData.profile.name}!`);
+      renderPustakaKawi();
+    }
+
+    /* =========================================================================
+       2. HALAMAN: RINTIS PUSTAKA BARU
+       ========================================================================= */
+    function renderRintisBaruInputs() {
+      const container = document.getElementById('new-baits-container');
+      const existingValues = [];
+      container.querySelectorAll('textarea').forEach(t => existingValues.push(t.value));
+
+      container.innerHTML = "";
+      for (let i = 0; i < newBaitsCount; i++) {
+        const val = existingValues[i] || "";
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.innerHTML = `
+          <label class="form-label">Bait ke-${i + 1}</label>
+          <textarea class="input-textarea" id="new-bait-${i}" rows="4" placeholder="Tulis isi bait ke-${i + 1} di sini...">${escapeHtml(val)}</textarea>
+        `;
+        container.appendChild(div);
+      }
+      document.getElementById('btn-rem-bait').disabled = (newBaitsCount <= 1);
+    }
+
+    function addBaitToNew() {
+      newBaitsCount++;
+      renderRintisBaruInputs();
+    }
+
+    function removeBaitFromNew() {
+      if (newBaitsCount > 1) {
+        newBaitsCount--;
+        renderRintisBaruInputs();
+      }
+    }
+
+    function saveNewPoetry() {
+      const title = document.getElementById('new-poetry-title').value.trim();
+      const tagsInput = document.getElementById('new-poetry-tags').value.trim();
+      const commitMsg = document.getElementById('new-poetry-commit').value.trim() || "Initial commit: draf awal pustaka";
+
+      const baits = [];
+      for (let i = 0; i < newBaitsCount; i++) {
+        const el = document.getElementById(`new-bait-${i}`);
+        if (el && el.value.trim()) {
+          baits.push(el.value.trim());
+        }
+      }
+
+      const fullContent = baits.join("\n\n");
+
+      if (!title || !fullContent) {
+        showToast("⚠️ Judul pustaka dan minimal satu bait syair tidak boleh kosong!");
+        return;
+      }
+
+      if (appData.repos[title] || appData.trash[title]) {
+        showToast("⚠️ Judul pustaka ini sudah ada di penyimpanan atau Pralaya. Gunakan nama lain.");
+        return;
+      }
+
+      const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : ["Umum"];
+      const now = formatCurrentDateTime();
+
+      appData.repos[title] = {
+        tags: tags,
+        commits: [
+          {
+            timestamp: now,
+            title_version: "Prathama (Draf Awal)",
+            content: fullContent,
+            message: commitMsg
+          }
+        ]
+      };
+
+      saveAppData();
+      showToast(`Pustaka syair '${title}' berhasil dirintis dan di-commit!`);
+
+      // Reset form
+      document.getElementById('new-poetry-title').value = "";
+      document.getElementById('new-poetry-tags').value = "";
+      document.getElementById('new-poetry-commit').value = "Initial commit: draf awal pustaka";
+      newBaitsCount = 2;
+      renderRintisBaruInputs();
+
+      // Beralih ke Pustaka Kawi
+      switchPage('pustaka-kawi');
+    }
+
+    /* =========================================================================
+       3. HALAMAN: REVISI DIKSI
+       ========================================================================= */
+    const revisiBaitCounts = {};
+
+    function renderRevisiDiksi() {
+      const container = document.getElementById('revisi-container');
+      container.innerHTML = "";
+      const repo = appData.repos || {};
+      const keys = Object.keys(repo);
+
+      if (keys.length === 0) {
+        container.innerHTML = `<div class="st-info-box">Belum ada pustaka yang bisa direvisi di dalam penyimpanan.</div>`;
+        return;
+      }
+
+      keys.forEach(tName => {
+        const tData = repo[tName];
+        const commits = tData.commits;
+        const tLatest = commits[commits.length - 1];
+        const currSanskrit = getSanskritVersion(commits.length - 1);
+
+        const currentBaits = tLatest.content.split("\n\n");
+        if (revisiBaitCounts[tName] === undefined) {
+          revisiBaitCounts[tName] = Math.max(currentBaits.length, 2);
+        }
+
+        const expander = document.createElement('div');
+        expander.className = 'expander-item';
+        expander.innerHTML = `
+          <div class="expander-header" onclick="toggleExpander(this)">
+            <span>📝 ${tName} (Fase Terkini: ${currSanskrit})</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="expander-body">
+            <div class="flex-row-gap" style="margin-bottom: 15px;">
+              <button class="btn btn-outline" onclick="changeRevisiBaitCount('${escapeJs(tName)}', 1)">➕ Tambah Bait</button>
+              <button class="btn btn-outline" onclick="changeRevisiBaitCount('${escapeJs(tName)}', -1)">➖ Kurangi Bait</button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Catatan Fase / Sub-judul</label>
+              <input type="text" class="input-text" id="revisi-sub-${escapeJs(tName)}" value="${escapeHtml(tLatest.title_version)}">
+            </div>
+
+            <div id="revisi-baits-list-${escapeJs(tName)}" style="display:flex; flex-direction:column; gap:12px; margin-bottom:15px;">
+              ${renderRevisiBaitInputs(tName, currentBaits)}
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Pesan Commit (Contoh: 'ganti bait kedua pakai diksi sanskerta')</label>
+              <input type="text" class="input-text" id="revisi-msg-${escapeJs(tName)}" placeholder="Tulis catatan revisi...">
+            </div>
+
+            <button class="btn btn-accent" onclick="saveRevisiCommit('${escapeJs(tName)}')">Simpan Perubahan Pustaka '${tName}'</button>
+          </div>
+        `;
+        container.appendChild(expander);
+      });
+    }
+
+    function renderRevisiBaitInputs(tName, currentBaits) {
+      let html = "";
+      const count = revisiBaitCounts[tName];
+      for (let i = 0; i < count; i++) {
+        const defaultVal = (i < currentBaits.length) ? currentBaits[i] : "";
+        html += `
+          <div class="form-group">
+            <label class="form-label">Bait ke-${i + 1}</label>
+            <textarea class="input-textarea" id="revisi-bait-${escapeJs(tName)}-${i}" rows="4">${escapeHtml(defaultVal)}</textarea>
+          </div>
+        `;
+      }
+      return html;
+    }
+
+    function changeRevisiBaitCount(tName, delta) {
+      const cur = revisiBaitCounts[tName] || 2;
+      const next = cur + delta;
+      if (next >= 1) {
+        revisiBaitCounts[tName] = next;
+        renderRevisiDiksi();
+      }
+    }
+
+    function saveRevisiCommit(tName) {
+      const repo = appData.repos;
+      if (!repo[tName]) return;
+
+      const subTitle = document.getElementById(`revisi-sub-${tName}`).value.trim();
+      let commitMsg = document.getElementById(`revisi-msg-${tName}`).value.trim();
+
+      const count = revisiBaitCounts[tName] || 2;
+      const editBaits = [];
+
+      for (let i = 0; i < count; i++) {
+        const el = document.getElementById(`revisi-bait-${tName}-${i}`);
+        if (el && el.value.trim()) {
+          editBaits.push(el.value.trim());
+        }
+      }
+
+      const fullNewContent = editBaits.join("\n\n");
+      if (!fullNewContent) {
+        showToast("⚠️ Isi bait syair tidak boleh kosong!");
+        return;
+      }
+
+      const now = formatCurrentDateTime();
+      if (!commitMsg) {
+        commitMsg = `Update pada ${now.slice(0, 16)}`;
+      }
+
+      const nextSanskrit = getSanskritVersion(repo[tName].commits.length);
+      const newCommit = {
+        timestamp: now,
+        title_version: subTitle ? subTitle : `Revisi ${nextSanskrit}`,
+        content: fullNewContent,
+        message: commitMsg
+      };
+
+      repo[tName].commits.push(newCommit);
+      saveAppData();
+      showToast(`Perubahan untuk pustaka '${tName}' berhasil disimpan ke dalam rekam jejak!`);
+      renderRevisiDiksi();
+    }
+
+    /* =========================================================================
+       4. HALAMAN: INDEKS PUSTAKA
+       ========================================================================= */
+    function renderIndeksPustaka() {
+      const container = document.getElementById('indeks-main-container');
+      container.innerHTML = "";
+      const repo = appData.repos || {};
+      const keys = Object.keys(repo);
+
+      if (keys.length === 0) {
+        container.innerHTML = `<div class="st-info-box">Belum ada pustaka syair tersimpan. Mari rintis karya pertamamu lewat menu Rintis Pustaka Baru!</div>`;
+        return;
+      }
+
+      keys.forEach(titleKey => {
+        const poetryData = repo[titleKey];
+        const commits = poetryData.commits;
+        const latestCommit = commits[commits.length - 1];
+        const tagsStr = (poetryData.tags || ["Umum"]).join(", ");
+        const sanskritVer = getSanskritVersion(commits.length - 1);
+
+        const expander = document.createElement('div');
+        expander.className = 'expander-item';
+        expander.innerHTML = `
+          <div class="expander-header" onclick="toggleExpander(this)">
+            <span>📜 ${titleKey} (Stadia: ${sanskritVer})</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="expander-body">
+            <p style="color: var(--text-muted); font-size: 13px; margin-top: 0; margin-bottom: 12px;">
+              <i>${escapeHtml(latestCommit.title_version)}</i> &nbsp;•&nbsp; Tag: ${tagsStr}
+            </p>
+            <div class="poetry-box">${escapeHtml(latestCommit.content)}</div>
+          </div>
+        `;
+        container.appendChild(expander);
+      });
+    }
+
+    /* =========================================================================
+       5. HALAMAN: STATISTIK PRODUKTIVITAS
+       ========================================================================= */
+    function renderStatistik() {
+      const repo = appData.repos || {};
+      const contributionCounts = {};
+      let totalPoems = Object.keys(repo).length;
+      let totalCommits = 0;
+
+      Object.values(repo).forEach(data => {
+        data.commits.forEach(commit => {
+          totalCommits++;
+          const dateStr = (commit.timestamp || "").split(" ")[0];
+          if (dateStr) {
+            contributionCounts[dateStr] = (contributionCounts[dateStr] || 0) + 1;
+          }
+        });
+      });
+
+      // Heatmap 35 hari terakhir
+      const boxesContainer = document.getElementById('contribution-heatmap-boxes');
+      boxesContainer.innerHTML = "";
+
+      const today = new Date();
+      const daysToShow = 35;
+
+      for (let i = daysToShow - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+
+        const count = contributionCounts[dateStr] || 0;
+        let boxColor = "#161b22";
+        let borderColor = "#30363d";
+
+        if (count === 1) {
+          boxColor = "#0e4429";
+          borderColor = "#006d32";
+        } else if (count === 2) {
+          boxColor = "#006d32";
+          borderColor = "#26a641";
+        } else if (count >= 3) {
+          boxColor = "#26a641";
+          borderColor = "#39d353";
+        }
+
+        const box = document.createElement('div');
+        box.title = `${dateStr}: ${count} commit`;
+        box.style.cssText = `width: 15px; height: 15px; background-color: ${boxColor}; border: 1px solid ${borderColor}; border-radius: 3px; display: inline-block; margin: 2px; cursor: pointer;`;
+        boxesContainer.appendChild(box);
+      }
+
+      document.getElementById('metric-total-poems').textContent = `${totalPoems} Judul`;
+      document.getElementById('metric-total-commits').textContent = `${totalCommits} Kali`;
+    }
+
+    /* =========================================================================
+       6. HALAMAN: SUNTING PROFIL & TEMA
+       ========================================================================= */
+    function loadProfileForm() {
+      const p = appData.profile;
+      document.getElementById('edit-profile-emoji').value = p.emoji || "✒️";
+      document.getElementById('edit-profile-name').value = p.name || "";
+      document.getElementById('edit-profile-bio').value = p.bio || "";
+      document.getElementById('edit-profile-theme').value = p.theme || "Gryffindor";
+    }
+
+    function handleSaveProfile(e) {
+      e.preventDefault();
+      const emoji = document.getElementById('edit-profile-emoji').value;
+      const name = document.getElementById('edit-profile-name').value.trim();
+      const bio = document.getElementById('edit-profile-bio').value.trim();
+      const theme = document.getElementById('edit-profile-theme').value;
+
+      if (!name) {
+        showToast("⚠️ Nama penzair tidak boleh kosong!");
+        return;
+      }
+
+      appData.profile.emoji = emoji;
+      appData.profile.name = name;
+      appData.profile.bio = bio;
+      appData.profile.theme = theme;
+
+      saveAppData();
+      applyTheme(theme);
+      updateSidebarProfile();
+
+      showToast("Profil dan tema warna berhasil diperbarui!");
+    }
+
+    /* =========================================================================
+       7. HALAMAN: PRALAYA (TEMPAT SAMPAH)
+       ========================================================================= */
+    function renderPralaya() {
+      const container = document.getElementById('pralaya-container');
+      container.innerHTML = "";
+      const trash = appData.trash || {};
+      const keys = Object.keys(trash);
+
+      if (keys.length === 0) {
+        container.innerHTML = `<div class="st-info-box">Pralaya sunyi. Belum ada pustaka yang dilebur.</div>`;
+        return;
+      }
+
+      keys.forEach(tKey => {
+        const tVal = trash[tKey];
+        const latestC = tVal.commits[tVal.commits.length - 1];
+
+        const expander = document.createElement('div');
+        expander.className = 'expander-item';
+        expander.innerHTML = `
+          <div class="expander-header" onclick="toggleExpander(this)">
+            <span>🌪️ ${tKey} (Arsip Terlebur)</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="expander-body">
+            <div class="flex-row-gap" style="margin-bottom: 15px;">
+              <button class="btn btn-success" onclick="restoreFromTrash('${escapeJs(tKey)}')">♻️ Pulihkan Pustaka</button>
+              <button class="btn btn-danger" onclick="deletePermanently('${escapeJs(tKey)}')">🔥 Musnahkan Permanen</button>
+            </div>
+            <div class="poetry-box">${escapeHtml(latestC.content)}</div>
+          </div>
+        `;
+        container.appendChild(expander);
+      });
+    }
+
+    function restoreFromTrash(tKey) {
+      if (!appData.trash[tKey]) return;
+      appData.repos[tKey] = appData.trash[tKey];
+      delete appData.trash[tKey];
+      saveAppData();
+      showToast(`Pustaka '${tKey}' berhasil dipulihkan dari Pralaya!`);
+      renderPralaya();
+    }
+
+    function deletePermanently(tKey) {
+      if (!appData.trash[tKey]) return;
+      delete appData.trash[tKey];
+      saveAppData();
+      showToast(`Pustaka '${tKey}' dimusnahkan secara permanen.`);
+      renderPralaya();
+    }
+
+    /* =========================================================================
+       UTILITY HELPERS
+       ========================================================================= */
+    function toggleExpander(headerEl) {
+      const item = headerEl.closest('.expander-item');
+      item.classList.toggle('open');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeJs(str) {
+      if (!str) return '';
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function formatCurrentDateTime() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const ii = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd} ${hh}:${ii}:${ss}`;
+    }
+
+    /* =========================================================================
+       BOOTSTRAP & EVENT LISTENERS
+       ========================================================================= */
+    function bootApp() {
+      applyTheme(appData.profile.theme || "Gryffindor");
+      updateSidebarProfile();
+      renderSidebarIndices();
+      switchPage('pustaka-kawi');
+    }
+
+    window.onload = function () {
+      initUserDatabase();
+
+      // Navigasi Radio Listener
+      document.querySelectorAll('.nav-radio-item').forEach(item => {
+        item.addEventListener('click', () => {
+          switchPage(item.dataset.page);
+          // Auto close sidebar di mobile saat menu diklik
+          if (window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.add('collapsed');
+          }
+        });
+      });
+
+      // Floating Button Buka/Tutup Sidebar
+      const floatingBtn = document.getElementById('floating-toggle');
+      floatingBtn.addEventListener('click', () => {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('collapsed');
+      });
+
+      bootApp();
+    };
+  </script>
+</body>
+</html>
