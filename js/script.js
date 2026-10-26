@@ -797,6 +797,76 @@ function deletePermanently(tKey) {
 }
 
 /* =========================================================================
+   8. FITUR EKSPOR & IMPOR DATA (JSON BACKUP)
+   ========================================================================= */
+function exportDataToJson() {
+  if (!currentUser || !appData) {
+    showToast("⚠️ Masuk ke akun terlebih dahulu sebelum mengekspor.");
+    return;
+  }
+
+  const backupPayload = {
+    app: "Aksara - Pustaka Sastra Nusantara",
+    version: "1.0.0",
+    exported_at: formatCurrentDateTime(),
+    account: {
+      username: currentUser,
+      data: appData
+    }
+  };
+
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+  const downloadAnchor = document.createElement('a');
+  
+  const dateStamp = new Date().toISOString().split('T')[0];
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `aksara_cadangan_${currentUser}_${dateStamp}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+
+  showToast("Arsip pustaka berhasil diunduh ke perangkat!");
+}
+
+function importDataFromJson(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+
+      if (!imported.account || !imported.account.data) {
+        throw new Error("Format berkas tidak valid.");
+      }
+
+      const confirmRestore = confirm("Memulihkan cadangan akan menimpa data naskah akun saat ini. Lanjutkan?");
+      if (!confirmRestore) {
+        event.target.value = "";
+        return;
+      }
+
+      appData = imported.account.data;
+      saveAppData();
+
+      applyTheme(appData.profile.theme || "Gryffindor");
+      updateSidebarProfile();
+      renderSidebarIndices();
+      switchPage('pustaka-kawi');
+
+      showToast("Pustaka syair berhasil dipulihkan dari berkas cadangan!");
+    } catch (err) {
+      showToast("⚠️ Gagal membaca berkas! Pastikan berkas cadangan .json valid.");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+/* =========================================================================
    UTILITY HELPERS
    ========================================================================= */
 function toggleExpander(headerEl) {
